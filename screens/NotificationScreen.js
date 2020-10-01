@@ -19,7 +19,7 @@ export default class NotificationScreen extends Component{
   }
 
   getNotifications=()=>{
-    this.requestRef = db.collection("all_notifications")
+    this.exchangeRef = db.collection("all_notifications")
     .where("notification_status", "==", "unread")
     .where("targeted_user_id",'==',this.state.userId)
     .onSnapshot((snapshot)=>{
@@ -49,8 +49,8 @@ export default class NotificationScreen extends Component{
       return (
         <ListItem
           key={index}
-          leftElement={<Icon name="book" type="font-awesome" color ='#696969'/>}
-          title={item.book_name}
+          leftElement={<Icon name="item" type="font-awesome" color ='#696969'/>}
+          title={item.item_name}
           titleStyle={{ color: 'black', fontWeight: 'bold' }}
           subtitle={item.message}
           bottomDivider

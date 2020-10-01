@@ -5,32 +5,32 @@ import firebase from 'firebase';
 import db from '../config'
 import MyHeader from '../components/MyHeader';
 
-export default class BookDonateScreen extends Component{
+export default class ItemExchangeScreen extends Component{
   constructor(){
     super()
     this.state = {
       userId  : firebase.auth().currentUser.email,
-      requestedBooksList : []
+      exchangedItemsList : []
     }
-  this.requestRef= null
+  this.exchangeRef= null
   }
 
-  getRequestedBooksList =()=>{
-    this.requestRef = db.collection("requested_books")
+  getExchangedItemsList =()=>{
+    this.exchangeRef = db.collection("exchanged_items")
     .onSnapshot((snapshot)=>{
-      var requestedBooksList = snapshot.docs.map((doc) => doc.data())
+      var exchangedItemsList = snapshot.docs.map((doc) => doc.data())
       this.setState({
-        requestedBooksList : requestedBooksList
+        exchangedItemsList : exchangedItemsList
       });
     })
   }
 
   componentDidMount(){
-    this.getRequestedBooksList()
+    this.getExchangedItemsList()
   }
 
   componentWillUnmount(){
-    this.requestRef();
+    this.exchangeRef();
   }
 
   keyExtractor = (item, index) => index.toString()
@@ -39,13 +39,13 @@ export default class BookDonateScreen extends Component{
     return (
       <ListItem
         key={i}
-        title={item.book_name}
-        subtitle={item.reason_to_request}
+        title={item.item_name}
+        subtitle={item.reason_to_exchange}
         titleStyle={{ color: 'black', fontWeight: 'bold' }}
         rightElement={
             <TouchableOpacity style={styles.button}
               onPress ={()=>{
-                this.props.navigation.navigate("RecieverDetails",{"details": item})
+                this.props.navigation.navigate("ExchangerDetails",{"details": item})
               }}
               >
               <Text style={{color:'#ffff'}}>View</Text>
@@ -59,19 +59,19 @@ export default class BookDonateScreen extends Component{
   render(){
     return(
       <View style={{flex:1}}>
-        <MyHeader title="Donate Books" navigation ={this.props.navigation}/>
+        <MyHeader title="Exchange Items" navigation ={this.props.navigation}/>
         <View style={{flex:1}}>
           {
-            this.state.requestedBooksList.length === 0
+            this.state.exchangedItemsList.length === 0
             ?(
               <View style={styles.subContainer}>
-                <Text style={{ fontSize: 20}}>List Of All Requested Books</Text>
+                <Text style={{ fontSize: 20}}>List Of All Exchanged Items</Text>
               </View>
             )
             :(
               <FlatList
                 keyExtractor={this.keyExtractor}
-                data={this.state.requestedBooksList}
+                data={this.state.exchangedItemsList}
                 renderItem={this.renderItem}
               />
             )

@@ -11,13 +11,13 @@ import db from '../config';
 import firebase from 'firebase';
 import MyHeader from '../components/MyHeader'
 
-export default class BookRequestScreen extends Component{
+export default class ItemExchangeScreen extends Component{
   constructor(){
     super();
     this.state ={
       userId : firebase.auth().currentUser.email,
-      bookName:"",
-      reasonToRequest:""
+      itemName:"",
+      description:""
     }
   }
 
@@ -27,57 +27,57 @@ export default class BookRequestScreen extends Component{
 
 
 
-  addRequest =(bookName,reasonToRequest)=>{
+  addExchange =(itemName,description)=>{
     var userId = this.state.userId
-    var randomRequestId = this.createUniqueId()
-    db.collection('requested_books').add({
+    var randomExchangeId = this.createUniqueId()
+    db.collection('exchanged_items').add({
         "user_id": userId,
-        "book_name":bookName,
-        "reason_to_request":reasonToRequest,
-        "request_id"  : randomRequestId,
+        "item_name":itemName,
+        "description":description,
+        "exchange_id"  : randomExchangeId,
     })
 
     this.setState({
-        bookName :'',
-        reasonToRequest : ''
+        itemName :'',
+        description : ''
     })
 
-    return Alert.alert("Book Requested Successfully")
+    return Alert.alert("Item Exchanged Successfully")
   }
 
 
   render(){
     return(
         <View style={{flex:1}}>
-          <MyHeader title="Request Book" navigation ={this.props.navigation}/>
+          <MyHeader title="Exchange Item" navigation ={this.props.navigation}/>
             <KeyboardAvoidingView style={styles.keyBoardStyle}>
               <TextInput
                 style ={styles.formTextInput}
-                placeholder={"enter book name"}
+                placeholder={"enter item name"}
                 onChangeText={(text)=>{
                     this.setState({
-                        bookName:text
+                        itemName:text
                     })
                 }}
-                value={this.state.bookName}
+                value={this.state.itemName}
               />
               <TextInput
                 style ={[styles.formTextInput,{height:300}]}
                 multiline
                 numberOfLines ={8}
-                placeholder={"Why do you need the book"}
+                placeholder={"Description"}
                 onChangeText ={(text)=>{
                     this.setState({
-                        reasonToRequest:text
+                        description:text
                     })
-                }}
-                value ={this.state.reasonToRequest}
+                }} 
+                value ={this.state.description}
               />
               <TouchableOpacity
                 style={styles.button}
-                onPress={()=>{this.addRequest(this.state.bookName,this.state.reasonToRequest)}}
+                onPress={()=>{this.addExchange(this.state.itemName,this.state.description)}}
                 >
-                <Text>Request</Text>
+                <Text>Exchange</Text>
               </TouchableOpacity>
             </KeyboardAvoidingView>
         </View>

@@ -5,76 +5,76 @@ import MyHeader from '../components/MyHeader.js'
 import firebase from 'firebase';
 import db from '../config.js'
 
-export default class MyDonationScreen extends Component {
+export default class MyExchangeScreen extends Component {
    constructor(){
      super()
      this.state = {
-       donorId : firebase.auth().currentUser.email,
-       donorName : "",
-       allDonations : []
+       exchangerId : firebase.auth().currentUser.email,
+       exchangerName : "",
+       allExchanges : []
      }
-     this.requestRef= null
+     this.exchangeRef= null
    }
 
    static navigationOptions = { header: null };
 
-   getDonorDetails=(donorId)=>{
-     db.collection("users").where("email_id","==", donorId).get()
+   getExchangerDetails=(exchangerId)=>{
+     db.collection("users").where("email_id","==", exchangerId).get()
      .then((snapshot)=>{
        snapshot.forEach((doc) => {
          this.setState({
-           "donorName" : doc.data().first_name + " " + doc.data().last_name
+           "exchangerName" : doc.data().first_name + " " + doc.data().last_name
          })
        });
      })
    }
 
-   getAllDonations =()=>{
-     this.requestRef = db.collection("all_donations").where("donor_id" ,'==', this.state.donorId)
+   getAllExchanges =()=>{
+     this.exchangeRef = db.collection("all_exchanges").where("exchanger_id" ,'==', this.state.exchangerId)
      .onSnapshot((snapshot)=>{
-       var allDonations = []
+       var allExchanges = []
        snapshot.docs.map((doc) =>{
-         var donation = doc.data()
-         donation["doc_id"] = doc.id
-         allDonations.push(donation)
+         var exchange = doc.data()
+         exchange["doc_id"] = doc.id
+         allExchanges.push(exchange)
        });
        this.setState({
-         allDonations : allDonations
+         allExchanges : allExchanges
        });
      })
    }
 
-   sendBook=(bookDetails)=>{
-     if(bookDetails.request_status === "Book Sent"){
-       var requestStatus = "Donor Interested"
-       db.collection("all_donations").doc(bookDetails.doc_id).update({
-         "request_status" : "Donor Interested"
+   sendItem=(itemDetails)=>{
+     if(itemDetails.exchange_status === "Item Sent"){
+       var exchangeStatus = "Exchanger Interested"
+       db.collection("all_exchanges").doc(itemDetails.doc_id).update({
+         "exchange_status" : "Exchanger Interested"
        })
-       this.sendNotification(bookDetails,requestStatus)
+       this.sendNotification(itemDetails,exchangeStatus)
      }
      else{
-       var requestStatus = "Book Sent"
-       db.collection("all_donations").doc(bookDetails.doc_id).update({
-         "request_status" : "Book Sent"
+       var exchangeStatus = "Item Sent"
+       db.collection("all_exchanges").doc(itemDetails.doc_id).update({
+         "exchange_status" : "Item Sent"
        })
-       this.sendNotification(bookDetails,requestStatus)
+       this.sendNotification(itemDetails,exchangeStatus)
      }
    }
 
-   sendNotification=(bookDetails,requestStatus)=>{
-     var requestId = bookDetails.request_id
-     var donorId = bookDetails.donor_id
+   sendNotification=(itemDetails,exchangeStatus)=>{
+     var exchangeId = itemDetails.exchange_id
+     var exchangerId = itemDetails.exchanger_id
      db.collection("all_notifications")
-     .where("request_id","==", requestId)
-     .where("donor_id","==",donorId)
+     .where("exchange_id","==", exchangeId)
+     .where("exchanger_id","==",exchangerId)
      .get()
      .then((snapshot)=>{
        snapshot.forEach((doc) => {
          var message = ""
-         if(requestStatus === "Book Sent"){
-           message = this.state.donorName + " sent you book"
+         if(exchangeStatus === "Item Sent"){
+           message = this.state.exchangerName + " sent you item"
          }else{
-            message =  this.state.donorName  + " has shown interest in donating the book"
+            message =  this.state.exchangerName  + " has shown interest in donating the item"
          }
          db.collection("all_notifications").doc(doc.id).update({
            "message": message,
@@ -90,24 +90,24 @@ export default class MyDonationScreen extends Component {
    renderItem = ( {item, i} ) =>(
      <ListItem
        key={i}
-       title={item.book_name}
-       subtitle={"Requested By : " + item.requested_by +"\nStatus : " + item.request_status}
-       leftElement={<Icon name="book" type="font-awesome" color ='#696969'/>}
+       title={item.item_name}
+       subtitle={"Exchanged By : " + item.exchanged_by +"\nStatus : " + item.exchange_status}
+       leftElement={<Icon name="item" type="font-awesome" color ='#696969'/>}
        titleStyle={{ color: 'black', fontWeight: 'bold' }}
        rightElement={
            <TouchableOpacity
             style={[
               styles.button,
               {
-                backgroundColor : item.request_status === "Book Sent" ? "green" : "#ff5722"
+                backgroundColor : item.exchange_status === "Item Sent" ? "green" : "#ff5722"
               }
             ]}
             onPress = {()=>{
-              this.sendBook(item)
+              this.sendItem(item)
             }}
            >
              <Text style={{color:'#ffff'}}>{
-               item.request_status === "Book Sent" ? "Book Sent" : "Send Book"
+               item.exchange_status === "Item Sent" ? "Item Sent" : "Send Item"
              }</Text>
            </TouchableOpacity>
          }
@@ -117,30 +117,30 @@ export default class MyDonationScreen extends Component {
 
 
    componentDidMount(){
-     this.getDonorDetails(this.state.donorId)
-     this.getAllDonations()
+     this.getExchangerDetails(this.state.exchangerId)
+     this.getAllExchanges()
    }
 
    componentWillUnmount(){
-     this.requestRef();
+     this.exchangeRef();
    }
 
    render(){
      return(
        <View style={{flex:1}}>
-         <MyHeader navigation={this.props.navigation} title="My Donations"/>
+         <MyHeader navigation={this.props.navigation} title="My Exchanges"/>
          <View style={{flex:1}}>
            {
-             this.state.allDonations.length === 0
+             this.state.allExchanges.length === 0
              ?(
                <View style={styles.subtitle}>
-                 <Text style={{ fontSize: 20}}>List of all book Donations</Text>
+                 <Text style={{ fontSize: 20}}>List of all item Exchanges</Text>
                </View>
              )
              :(
                <FlatList
                  keyExtractor={this.keyExtractor}
-                 data={this.state.allDonations}
+                 data={this.state.allExchanges}
                  renderItem={this.renderItem}
                />
              )

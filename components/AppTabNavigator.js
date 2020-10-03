@@ -13,8 +13,8 @@ export const AppTabNavigator = createBottomTabNavigator({
       tabBarLabel : "Home",
     }
   },
-  BookRequest: {
-    screen: BookRequestScreen,
+  ItemRequest: {
+    screen: ItemRequestScreen,
     navigationOptions :{
       tabBarIcon : <Image source={require("../assets/request-item.png")} style={{width:20, height:20}}/>,
       tabBarLabel : "Exchange Item",
